@@ -121,6 +121,8 @@ func main() {
 
 		if input == "exit" {
 			return
+		} else if input == "" {
+			continue
 		} else {
 			fmt.Println("command not found")
 		}
@@ -207,33 +209,135 @@ func handleAdd(input string) {
 }
 
 func handleDelete(input string) {
-	fmt.Println("handle delete")
+	contentArr := strings.Split(input, " ")
+	id, errId := strconv.Atoi(contentArr[1])
+
+	if errId != nil {
+		fmt.Println("Your id is not valid!")
+		return
+	}
+
+	index := slices.IndexFunc(tasks, func(t Task) bool {
+		return t.Id == id
+	})
+
+	if index == -1 {
+		fmt.Println("Your id is not found!")
+		return
+	}
+
+	latestTasks := slices.Delete(tasks, index, index+1)
+
+	tasks = latestTasks
+
+	fmt.Println("Sucessfuly delete task with id: ", id)
+
+	handleList()
 }
 
 func handleMarkInProgress(input string) {
-	fmt.Println("handle mark in progress")
+	contentArr := strings.Split(input, " ")
+	id, errId := strconv.Atoi(contentArr[1])
+
+	if errId != nil {
+		fmt.Println("Your id is not valid!")
+		return
+	}
+
+	index := slices.IndexFunc(tasks, func(t Task) bool {
+		return t.Id == id
+	})
+
+	if index == -1 {
+		fmt.Println("Your id is not found!")
+		return
+	}
+
+	tasks[index].Status = IN_PROGRESS
+
+	fmt.Println("Sucessfuly mark task with id: ", id, " as in progress")
 }
 
 func handleMarkDone(input string) {
-	fmt.Println("handle mark done")
+	contentArr := strings.Split(input, " ")
+	id, errId := strconv.Atoi(contentArr[1])
+
+	if errId != nil {
+		fmt.Println("Your id is not valid!")
+		return
+	}
+
+	index := slices.IndexFunc(tasks, func(t Task) bool {
+		return t.Id == id
+	})
+
+	if index == -1 {
+		fmt.Println("Your id is not found!")
+		return
+	}
+
+	tasks[index].Status = DONE
+
+	fmt.Println("Sucessfuly mark task with id: ", id, " as done")
 }
 
 func handleList() {
+	if len(tasks) == 0 {
+		fmt.Println("You have no task!")
+		return
+	}
+
 	for _, value := range tasks {
 		value.ToJson()
 	}
 }
 
 func handleListDone() {
-	fmt.Println("handle list done")
+	doneTasks := FilterSlice(tasks, func(t Task) bool {
+		return t.Status == DONE
+	})
+
+	if len(doneTasks) == 0 {
+		fmt.Println("You have no done task!")
+		return
+	}
+
+	fmt.Println("Filtering done tasks:")
+	for _, value := range doneTasks {
+		value.ToJson()
+	}
 }
 
 func handleListTodo() {
-	fmt.Println("handle list todo")
+	todoTasks := FilterSlice(tasks, func(t Task) bool {
+		return t.Status == TODO
+	})
+
+	if len(todoTasks) == 0 {
+		fmt.Println("You have no todo task!")
+		return
+	}
+
+	fmt.Println("Filtering todo tasks:")
+	for _, value := range todoTasks {
+		value.ToJson()
+	}
 }
 
 func handleListInProgress() {
-	fmt.Println("handle list in progress")
+	inProgressTask := FilterSlice(tasks, func(t Task) bool {
+		return t.Status == IN_PROGRESS
+	})
+
+	if len(inProgressTask) == 0 {
+		fmt.Println("You have no in-progress task!")
+		return
+	}
+
+	fmt.Println("Filtering in-progress tasks:")
+	for _, value := range inProgressTask {
+		value.ToJson()
+	}
 }
 
 func handleCommand() {

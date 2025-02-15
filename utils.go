@@ -38,6 +38,17 @@ func UpdateStruct(existing interface{}, updates interface{}) {
 	}
 }
 
+func FilterSlice[T any](items []T, filterFunc func(T) bool) []T {
+	result := make([]T, 0, len(items)) // Preallocate memory
+
+	for _, item := range items {
+		if filterFunc(item) {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 func CheckAddFormat(input string) bool {
 	re := regexp.MustCompile(`^add\s+"[^"]+"$`)
 	return re.MatchString(input)
