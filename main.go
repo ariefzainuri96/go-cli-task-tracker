@@ -51,10 +51,15 @@ var commands = []Command{
 	{
 		command: "exit",
 	},
+	{
+		command: "save",
+	},
 }
 
 func main() {
 	reader := bufio.NewReader(bufio.NewReader(os.Stdin))
+
+	LoadJsonData("tasks.json", &tasks)
 
 	fmt.Println("type command for list command that you can perform")
 
@@ -117,14 +122,16 @@ func main() {
 			continue
 		}
 
-		// list done
-
-		if input == "exit" {
+		if input == "save" {
+			SaveToJson(tasks)
+			continue
+		} else if input == "exit" {
 			return
 		} else if input == "" {
 			continue
 		} else {
 			fmt.Println("command not found")
+			continue
 		}
 	}
 }
@@ -206,6 +213,8 @@ func handleAdd(input string) {
 
 	fmt.Printf("You have been added:")
 	task.ToJson()
+
+	SaveToJson(tasks)
 }
 
 func handleDelete(input string) {
@@ -233,6 +242,8 @@ func handleDelete(input string) {
 	fmt.Println("Sucessfuly delete task with id: ", id)
 
 	handleList()
+
+	SaveToJson(tasks)
 }
 
 func handleMarkInProgress(input string) {
@@ -256,6 +267,8 @@ func handleMarkInProgress(input string) {
 	tasks[index].Status = IN_PROGRESS
 
 	fmt.Println("Sucessfuly mark task with id: ", id, " as in progress")
+
+	SaveToJson(tasks)
 }
 
 func handleMarkDone(input string) {
@@ -279,6 +292,8 @@ func handleMarkDone(input string) {
 	tasks[index].Status = DONE
 
 	fmt.Println("Sucessfuly mark task with id: ", id, " as done")
+
+	SaveToJson(tasks)
 }
 
 func handleList() {

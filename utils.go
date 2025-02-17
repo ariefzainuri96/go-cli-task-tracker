@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 	"reflect"
 	"regexp"
 )
@@ -15,7 +18,6 @@ func ExtractDoubleQuotes(input string) (string, error) {
 	} else {
 		return "", errors.New("you have specified more than 1 task")
 	}
-
 }
 
 // UpdateStruct updates only non-zero fields in the new object
@@ -47,6 +49,49 @@ func FilterSlice[T any](items []T, filterFunc func(T) bool) []T {
 		}
 	}
 	return result
+}
+
+func LoadJsonData(filePath string, tasks *[]Task) {
+	file, err := os.Open(filePath)
+
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	jsonParser := json.NewDecoder(file)
+	err = jsonParser.Decode(&tasks)
+	if err != nil {
+		fmt.Println("Error parsing JSON:", err)
+		return
+	}
+
+	fmt.Println("Successfully loaded previous saved tasks!")
+}
+
+func SaveToJson(tasks []Task) {
+	// Convert struct slice to JSON
+	jsonData, err := json.MarshalIndent(tasks, "", "  ")
+
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return
+	}
+
+	// Save JSON to a file
+	file, err := os.Create("tasks.json")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
 }
 
 func CheckAddFormat(input string) bool {
